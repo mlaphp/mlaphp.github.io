@@ -1,5 +1,13 @@
 <?php
 /**
+ * This file is part of "Modernizing Legacy Applications in PHP".
+ *
+ * @copyright 2014 Paul M. Jones <pmjones88@gmail.com>
+ * @license http://opensource.org/licenses/bsd-license.php BSD
+ */
+namespace Mlaphp;
+
+/**
  * A lazy-connecting proxy class for `mysql_*()` functions.
  *
  * Usage:
@@ -16,8 +24,6 @@
  *     ?>
  *
  * @see http://php.net/manual/en/ref.mysql.php
- * @copyright 2014 Paul M. Jones <pmjones88@gmail.com>
- * @license http://opensource.org/licenses/bsd-license.php BSD
  */
 class MysqlDatabase
 {
