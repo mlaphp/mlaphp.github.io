@@ -44,7 +44,7 @@ class View
     }
 
     /**
-     * Renders and returns the view.
+     * Renders and returns the view using the provided variables.
      *
      * @return string
      */
