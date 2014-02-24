@@ -16,35 +16,44 @@ namespace Mlaphp;
 class View
 {
     /**
-     * A file to require in its own separate scope.
+     * A file to require in its own scope for rendering.
      *
      * @var string
      */
     protected $file;
 
     /**
-     * Variables to extract into the separate scope.
+     * Variables to extract into the rendering scope.
      *
      * @var array
      */
     protected $vars = array();
 
     /**
-     * Constructor.
+     * Sets the view file to be rendered in its own scope.
      *
-     * @param string A file to require in its own separate scope.
-     * @param array Variables to extract into the separate scope.
+     * @param string $file The file to be rendered in its own scope.
+     * @return null
      */
-
-    public function __construct($file, array $vars = array())
+    public function setFile($file)
     {
         $this->file = $file;
-        $this->vars = $vars;
-        unset($this->vars['this']);
     }
 
     /**
-     * Renders the view in a buffer and returns the output.
+     * Sets the variables to use when rendering the file.
+     *
+     * @param array $vars Variables to extract into the rendering scope.
+     * @return null
+     */
+    public function setVars(array $vars)
+    {
+        unset($vars['this']);
+        $this->vars = $vars;
+    }
+
+    /**
+     * Renders the view in its own scope and returns the buffered output.
      *
      * @return string
      */
