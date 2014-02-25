@@ -23,16 +23,16 @@ class View
     protected $file;
 
     /**
-     * Variables to extract into the rendering scope.
+     * Variables to extract into the view scope.
      *
      * @var array
      */
     protected $vars = array();
 
     /**
-     * Sets the view file to be rendered in its own scope.
+     * Sets the path to the file to be rendered.
      *
-     * @param string $file The file to be rendered in its own scope.
+     * @param string $file The path to the file to be rendered.
      * @return null
      */
     public function setFile($file)
@@ -41,15 +41,35 @@ class View
     }
 
     /**
-     * Sets the variables to use when rendering the file.
+     * Returns the path to the file to be rendered.
      *
-     * @param array $vars Variables to extract into the rendering scope.
+     * @return string
+     */
+    public function getFile()
+    {
+        return $this->file;
+    }
+
+    /**
+     * Sets the variables to be extracted into the view scope.
+     *
+     * @param array $vars The variables to be extracted into the view scope.
      * @return null
      */
     public function setVars(array $vars)
     {
         unset($vars['this']);
         $this->vars = $vars;
+    }
+
+    /**
+     * Returns the variables to be extracted into the view scope.
+     *
+     * @return array
+     */
+    public function getVars(array $vars)
+    {
+        return $this->vars;
     }
 
     /**
