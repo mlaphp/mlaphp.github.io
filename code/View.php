@@ -30,6 +30,19 @@ class View
     protected $vars = array();
 
     /**
+     * Renders the view in its own scope and returns the buffered output.
+     *
+     * @return string
+     */
+    public function __invoke()
+    {
+        extract($this->vars);
+        ob_start();
+        require $this->file;
+        return ob_get_clean();
+    }
+
+    /**
      * Sets the path to the file to be rendered.
      *
      * @param string $file The path to the file to be rendered.
@@ -70,18 +83,5 @@ class View
     public function getVars(array $vars)
     {
         return $this->vars;
-    }
-
-    /**
-     * Renders the view in its own scope and returns the buffered output.
-     *
-     * @return string
-     */
-    public function render()
-    {
-        extract($this->vars);
-        ob_start();
-        require $this->file;
-        return ob_get_clean();
     }
 }
