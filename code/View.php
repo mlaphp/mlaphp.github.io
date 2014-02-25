@@ -34,7 +34,7 @@ class View
      *
      * @return string
      */
-    public function __invoke()
+    public function __toString()
     {
         extract($this->vars);
         ob_start();
