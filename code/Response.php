@@ -1,6 +1,6 @@
 <?php
 /**
- * This view is part of "Modernizing Legacy Applications in PHP".
+ * This file is part of "Modernizing Legacy Applications in PHP".
  *
  * @copyright 2014 Paul M. Jones <pmjones88@gmail.com>
  * @license http://opensource.org/licenses/bsd-license.php BSD
@@ -13,11 +13,19 @@ namespace Mlaphp;
 class Response
 {
     /**
-     * A buffer for HTTP-related output (headers and cookies).
+     * The callable to be invoked with `call_user_func()` as the last step
+     * in the `send()` process.
+     *
+     * @var callable
+     */
+    protected $func;
+
+    /**
+     * The buffer for HTTP header calls.
      *
      * @var array
      */
-    protected $http = array();
+    protected $headers = array();
 
     /**
      * Variables to extract into the view scope.
@@ -27,45 +35,31 @@ class Response
     protected $vars = array();
 
     /**
-     * A view file to require in its own scope for rendering.
+     * A view file to require in its own scope.
      *
      * @var string
      */
     protected $view;
 
     /**
-     * Allows read-only access to protected properties.
+     * Sets the path to the view file.
      *
-     * @param string $property The property name.
-     * @return mixed
-     */
-    public function __get($property)
-    {
-        return $this->$property;
-    }
-
-    /**
-     * Renders the view in its own scope and returns the buffered output.
-     *
-     * @return string
-     */
-    public function __invoke()
-    {
-        extract($this->vars);
-        ob_start();
-        require $this->view;
-        return ob_get_clean();
-    }
-
-    /**
-     * Sets the path to the view file to be rendered.
-     *
-     * @param string $view The path to the view to be rendered.
+     * @param string $view The path to the view file.
      * @return null
      */
     public function setView($view)
     {
         $this->view = $view;
+    }
+
+    /**
+     * Gets the path to the view file.
+     *
+     * @return string
+     */
+    public function getView()
+    {
+        return $this->view;
     }
 
     /**
@@ -81,6 +75,39 @@ class Response
     }
 
     /**
+     * Gets the variables to be extracted into the view scope.
+     *
+     * @return array
+     */
+    public function getVars()
+    {
+        return $this->vars;
+    }
+
+    /**
+     * Sets the callable to be invoked with `call_user_func()` as the last step
+     * in the `send()` process.
+     *
+     * @param callable $func The callable to be invoked.
+     * @return null
+     */
+    public function setFunc($func)
+    {
+        $this->func = $func;
+    }
+
+    /**
+     * Gets the callable to be invoked with `call_user_func()` as the last step
+     * in the `send()` process.
+     *
+     * @return callable
+     */
+    public function getFunc()
+    {
+        return $this->func;
+    }
+
+    /**
      * Buffers a call to `header()`.
      *
      * @return null
@@ -88,8 +115,8 @@ class Response
     public function header()
     {
         $args = func_get_args();
-        array_unshift('header', $args);
-        $this->http[] = $args;
+        array_unshift($args, 'header');
+        $this->headers[] = $args;
     }
 
     /**
@@ -97,11 +124,11 @@ class Response
      *
      * @return bool
      */
-    public function setcookie()
+    public function setCookie()
     {
         $args = func_get_args();
-        array_unshift('setcookie', $args);
-        $this->http[] = $args;
+        array_unshift($args, 'setcookie');
+        $this->headers[] = $args;
         return true;
     }
 
@@ -110,31 +137,79 @@ class Response
      *
      * @return bool
      */
-    public function setrawcookie()
+    public function setRawCookie()
     {
         $args = func_get_args();
-        array_unshift('setrawcookie', $args);
-        $this->http[] = $args;
+        array_unshift($args, 'setrawcookie');
+        $this->headers[] = $args;
         return true;
     }
 
     /**
-     * Outputs the headers and content of the rendered view.
+     * Returns the buffer for HTTP header calls.
+     *
+     * @return bool
+     */
+    public function getHeaders()
+    {
+        return $this->headers;
+    }
+
+    /**
+     * Outputs the buffered headers, buffered view, and calls the user function.
      *
      * @return null
      */
     public function send()
     {
-        // render first, in case view script calls $this->header() etc
-        $content = $this->__invoke();
+        $buffered_output = $this->requireView();
+        $this->sendHeaders();
+        echo $buffered_output;
+        $this->callFunc();
+    }
 
-        // output headers
-        foreach ($this->http as $args) {
+    /**
+     * Requires the view in its own scope with etracted variables and returns
+     * the buffered output.
+     *
+     * @return string
+     */
+    public function requireView()
+    {
+        if (! $this->view) {
+            return '';
+        }
+
+        extract($this->vars);
+        ob_start();
+        require $this->view;
+        return ob_get_clean();
+    }
+
+    /**
+     * Outputs the buffered calls to `header`, `setcookie`, etc.
+     *
+     * @return null
+     */
+    public function sendHeaders()
+    {
+        foreach ($this->headers as $args) {
             $func = array_shift($args);
             call_user_func_array($func, $args);
         }
+    }
 
-        // output content
-        return $content;
+    /**
+     * Calls `$this->func`, passing `$this` as the only argument.
+     *
+     * @return null
+     */
+    public function callFunc()
+    {
+        if (! $this->func) {
+            return;
+        }
+
+        call_user_func($this->func, $this);
     }
 }
