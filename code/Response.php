@@ -108,6 +108,19 @@ class Response
     }
 
     /**
+     * Escapes output for HTML tag contents, or for a **quoted** HTML
+     * attribute. Unquoted attributes are not made safe by using this method,
+     * nor is non-HTML content.
+     *
+     * @param string $string The unescaped string.
+     * @return string
+     */
+    public function esc($string)
+    {
+        return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
+    }
+    
+    /**
      * Buffers a call to `header()`.
      *
      * @return null

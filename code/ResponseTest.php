@@ -38,6 +38,13 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($func, $this->response->getFunc());
     }
 
+    public function testEsc()
+    {
+        $expect = "&lt;tag&gt;&quot;quote\&#039;apos&amp;amp";
+        $actual = $this->response->esc("<tag>\"quote\'apos&amp");
+        $this->assertSame($expect, $actual);
+    }
+
     public function testBufferedHeaders()
     {
         $this->response->header('Foo: Bar');
