@@ -31,11 +31,13 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($vars, $this->response->getVars());
     }
 
-    public function testSetAndGetFunc()
+    public function testSetAndGetLastCall()
     {
         $func = array($this, 'responseFunc');
-        $this->response->setFunc($func);
-        $this->assertSame($func, $this->response->getFunc());
+        $this->response->setLastCall($func, 'made last call');
+        $expect = array($func, 'made last call');
+        $actual = $this->response->getLastCall();
+        $this->assertSame($expect, $actual);
     }
 
     public function testEsc()
@@ -72,22 +74,22 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('', $output);
     }
 
-    public function testCallFunc()
+    public function testInvokeLastCall()
     {
-        $this->response->setFunc(array($this, 'responseFunc'));
-        $this->response->callFunc();
-        $this->assertSame('called func', $this->func_result);
+        $this->response->setLastCall(array($this, 'responseFunc'), 'made last call');
+        $this->response->invokeLastCall();
+        $this->assertSame('made last call', $this->func_result);
     }
 
-    public function testNoFuncToCall()
+    public function testNoLastCall()
     {
-        $this->response->callFunc();
+        $this->response->invokeLastCall();
         $this->assertSame('func not called', $this->func_result);
     }
 
-    public function responseFunc()
+    public function responseFunc($string)
     {
-        $this->func_result = 'called func';
+        $this->func_result = $string;
     }
 
     public function testSendHeaders()
@@ -102,7 +104,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         // prep
         $this->response->setView($this->view_file);
         $this->response->setVars(array('noun' => 'World'));
-        $this->response->setFunc(array($this, 'responseFunc'));
+        $this->response->setLastCall(array($this, 'responseFunc'), 'made last call');
         $this->response->fakeHeader('Foo: Bar');
 
         // send
@@ -113,6 +115,6 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         // test
         $this->assertSame('Hello World!', $output);
         $this->assertSame('Foo: Bar', $this->response->fake_headers);
-        $this->assertSame('called func', $this->func_result);
+        $this->assertSame('made last call', $this->func_result);
     }
 }

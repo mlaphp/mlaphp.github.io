@@ -13,19 +13,19 @@ namespace Mlaphp;
 class Response
 {
     /**
-     * The callable to be invoked with `call_user_func()` as the last step
-     * in the `send()` process.
-     *
-     * @var callable
-     */
-    protected $func;
-
-    /**
      * The buffer for HTTP header calls.
      *
      * @var array
      */
     protected $headers = array();
+
+    /**
+     * The callable and arguments to be invoked with `call_user_func_array()`
+     * as the last step in the `send()` process.
+     *
+     * @var array
+     */
+    protected $last_call;
 
     /**
      * Variables to extract into the view scope.
@@ -85,26 +85,27 @@ class Response
     }
 
     /**
-     * Sets the callable to be invoked with `call_user_func()` as the last step
-     * in the `send()` process.
+     * Sets the callable to be invoked with `call_user_func_array()` as the
+     * last step in the `send()` process; extra arguments are passed to the
+     * call.
      *
      * @param callable $func The callable to be invoked.
      * @return null
      */
-    public function setFunc($func)
+    public function setLastCall($func)
     {
-        $this->func = $func;
+        $this->last_call = func_get_args();
     }
 
     /**
-     * Gets the callable to be invoked with `call_user_func()` as the last step
-     * in the `send()` process.
+     * Gets the callable to be invoked with `call_user_func_array()` as the
+     * last step in the `send()` process.
      *
      * @return callable
      */
-    public function getFunc()
+    public function getLastCall()
     {
-        return $this->func;
+        return $this->last_call;
     }
 
     /**
@@ -178,7 +179,7 @@ class Response
         $buffered_output = $this->requireView();
         $this->sendHeaders();
         echo $buffered_output;
-        $this->callFunc();
+        $this->invokeLastCall();
     }
 
     /**
@@ -213,16 +214,17 @@ class Response
     }
 
     /**
-     * Calls `$this->func`, passing `$this` as the only argument.
+     * Invokes `$this->call`.
      *
      * @return null
      */
-    public function callFunc()
+    public function invokeLastCall()
     {
-        if (! $this->func) {
+        if (! $this->last_call) {
             return;
         }
-
-        call_user_func($this->func, $this);
+        $args = $this->last_call;
+        $func = array_shift($args);
+        call_user_func_array($func, $args);
     }
 }
