@@ -14,53 +14,27 @@ namespace Mlaphp;
 class Request
 {
     /**
-     * A reference to $_COOKIE.
-     * 
+     * A reference to $GLOBALS.
+     *
      * @var array
      */
-    protected $cookie = array();
+    protected $globals;
 
     /**
-     * A reference to $_ENV.
-     * 
+     * A map of magic properties to their superglobal reference.
+     *
      * @var array
      */
-    protected $env = array();
-
-    /**
-     * A reference to $_FILES.
-     * 
-     * @var array
-     */
-    protected $files = array();
-
-    /**
-     * A reference to $_GET.
-     * 
-     * @var array
-     */
-    protected $get = array();
-
-    /**
-     * A reference to $_POST.
-     * 
-     * @var array
-     */
-    protected $post = array();
-
-    /**
-     * A reference to $_REQUEST.
-     * 
-     * @var array
-     */
-    protected $request = array();
-
-    /**
-     * A reference to $_SERVER.
-     * 
-     * @var array
-     */
-    protected $server = array();
+    protected $properties = array(
+        'cookie' => '_COOKIE',
+        'env' => '_ENV',
+        'files' => '_FILES',
+        'get' => '_GET',
+        'post' => '_POST',
+        'request' => '_REQUEST',
+        'server' => '_SERVER',
+        'session' => '_SESSION',
+    );
 
     /**
      * Constructor.
@@ -69,31 +43,19 @@ class Request
      */
     public function __construct(&$globals)
     {
-        $super_property = array(
-            '_COOKIE'  => 'cookie',
-            '_ENV'     => 'env',
-            '_FILES'   => 'files',
-            '_GET'     => 'get',
-            '_POST'    => 'post',
-            '_REQUEST' => 'request',
-            '_SERVER'  => 'server',
-        );
-
-        foreach ($super_property as $super => $property) {
-            if (isset($globals[$super])) {
-                $this->$property =& $globals[$super];
-            }
-        }
+        $this->globals = &$globals;
     }
 
     /**
-     * Returns a reference to the property.
+     * Returns a reference to the superglobal mapped by the magic property name.
      *
      * @param string $property The property name.
-     * @return array A reference to the property.
+     * @return array A reference to the mapped superglobal.
      */
-    public function &__get($property)
+    public function &__get($name)
     {
-        return $this->$property;
+        if (isset($this->properties[$name])) {
+            return $this->globals[$this->properties[$name]];
+        }
     }
 }

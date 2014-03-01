@@ -74,4 +74,22 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->request->server['baz'] = 'dib';
         $this->assertSame('dib', $_SERVER['baz']);
     }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testSession()
+    {
+        $this->assertFalse(isset($_SESSION));
+        $this->assertNull($this->request->session);
+        
+        session_start();
+        $this->assertTrue(isset($_SESSION));
+
+        $_SESSION['foo'] = 'bar';
+        $this->assertSame('bar', $this->request->session['foo']);
+
+        $this->request->session['baz'] = 'dib';
+        $this->assertSame('dib', $_SESSION['baz']);
+    }
 }
