@@ -11,8 +11,7 @@ use DomainException;
 use InvalidArgumentException;
 
 /**
- * A data structure object to encapsulate superglobal references. Changes to
- * the property will be reflected in the superglobal, and vice versa.
+ * A data structure object to encapsulate superglobal references.
  */
 class Request
 {
