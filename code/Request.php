@@ -137,6 +137,10 @@ class Request
             throw new InvalidArgumentException;
         }
 
+        if (isset($this->globals['_SESSION'])) {
+            $this->session = &$this->globals['_SESSION'];
+        }
+        
         return isset($this->session);
     }
 

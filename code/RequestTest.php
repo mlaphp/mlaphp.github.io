@@ -89,10 +89,32 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     }
 
-    public function getSessionBeforeStarted()
+    /**
+     * @runInSeparateProcess
+     */
+    public function testIssetLinksToSession()
     {
+        $request = $this->newRequest();
+
+        // session not started yet
+        $this->assertFalse(isset($_SESSION));
+        $this->assertFalse(isset($request->session));
+        
+        // session started
+        session_start();
+
+        // this should attach property to $_SESSION
+        $this->assertTrue(isset($request->session));
+        $request->session['baz'] = 'dib';
+        $this->assertSame('dib', $_SESSION['baz']);
+    }
+
+    public function testGetSessionBeforeStarted()
+    {
+        $request = $this->newRequest();
+        $this->assertFalse(isset($GLOBALS['_SESSION']));
         $this->setExpectedException('DomainException');
-        $request->session['foo'] = 'baz';
+        $request->session['foo'] = 'bar';
     }
 
     public function testGetWrongName()
