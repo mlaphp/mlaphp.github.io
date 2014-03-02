@@ -7,6 +7,8 @@
  */
 namespace Mlaphp;
 
+use UnexpectedValueException;
+
 /**
  * A data structure object to encapsulate superglobal references. Changes to
  * the property will be reflected in the superglobal, and vice versa.
@@ -14,27 +16,68 @@ namespace Mlaphp;
 class Request
 {
     /**
-     * A reference to $GLOBALS.
+     * A copy of $_COOKIE.
+     *
+     * @var array
+     */
+    public $cookie = array();
+
+    /**
+     * A copy of $_ENV.
+     *
+     * @var array
+     */
+    public $env = array();
+
+    /**
+     * A copy of $_FILES.
+     *
+     * @var array
+     */
+    public $files = array();
+
+    /**
+     * A copy of $_GET.
+     *
+     * @var array
+     */
+    public $get = array();
+
+    /**
+     * A copy of $_REQUEST.
+     *
+     * @var array
+     */
+    public $request = array();
+
+    /**
+     * A copy of $_SERVER.
+     *
+     * @var array
+     */
+    public $server = array();
+
+    /**
+     * A **reference** to $GLOBALS. We keep this so we can have late access to
+     * $_SESSION.
      *
      * @var array
      */
     protected $globals;
 
     /**
+     * A **reference** to $_SESSION. We use a reference because PHP uses
+     * $_SESSION for all its session_*() functions.
+     *
+     * @var array
+     */
+    protected $session;
+
+    /**
      * A map of magic properties to their superglobal reference.
      *
      * @var array
      */
-    protected $properties = array(
-        'cookie' => '_COOKIE',
-        'env' => '_ENV',
-        'files' => '_FILES',
-        'get' => '_GET',
-        'post' => '_POST',
-        'request' => '_REQUEST',
-        'server' => '_SERVER',
-        'session' => '_SESSION',
-    );
 
     /**
      * Constructor.
@@ -44,18 +87,72 @@ class Request
     public function __construct(&$globals)
     {
         $this->globals = &$globals;
+
+        $properties = array(
+            'cookie' => '_COOKIE',
+            'env' => '_ENV',
+            'files' => '_FILES',
+            'get' => '_GET',
+            'post' => '_POST',
+            'request' => '_REQUEST',
+            'server' => '_SERVER',
+        );
+
+        foreach ($properties as $property => $superglobal) {
+            if (isset($globals[$superglobal])) {
+                $this->$property = $globals[$superglobal];
+            }
+        }
     }
 
     /**
-     * Returns a reference to the superglobal mapped by the magic property name.
+     * Provides a magic **reference** to $_SESSION.
      *
-     * @param string $property The property name.
-     * @return array A reference to the mapped superglobal.
+     * @param string $property The property name; must be 'session'.
+     * @return array A reference to $_SESSION.
      */
     public function &__get($name)
     {
-        if (isset($this->properties[$name])) {
-            return $this->globals[$this->properties[$name]];
+        if ($name != 'session') {
+            throw new UnexpectedValueException($name);
         }
+
+        if (isset($this->globals['_SESSION']) && ! isset($this->session)) {
+            $this->session = &$this->globals['_SESSION'];
+        }
+
+        return $this->session;
+    }
+
+    /**
+     * Provides magic isset() for $_SESSION and the related property.
+     *
+     * @param string $name The property name; must be 'session'.
+     * @return bool
+     */
+    public function __isset($name)
+    {
+        if ($name != 'session') {
+            throw new UnexpectedValueException;
+        }
+
+        return isset($this->session);
+    }
+
+    /**
+     * Provides magic unset() for $_SESSION; unsets both the property and the
+     * superglobal.
+     *
+     * @param string $name The property name; must be 'session'.
+     * @return null
+     */
+    public function __unset($name)
+    {
+        if ($name != 'session') {
+            throw new UnexpectedValueException;
+        }
+
+        $this->session = null;
+        unset($this->globals['_SESSION']);
     }
 }

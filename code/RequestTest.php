@@ -5,74 +5,58 @@ require __DIR__ . '/Request.php';
 
 class RequestTest extends \PHPUnit_Framework_TestCase
 {
-    protected $request;
-
-    public function setUp()
+    public function newRequest()
     {
-        $this->request = new Request($GLOBALS);
+        return new Request($GLOBALS);
     }
 
     public function testCookie()
     {
         $_COOKIE['foo'] = 'bar';
-        $this->assertSame('bar', $this->request->cookie['foo']);
-
-        $this->request->cookie['baz'] = 'dib';
-        $this->assertSame('dib', $_COOKIE['baz']);
+        $request = $this->newRequest();
+        $this->assertSame('bar', $request->cookie['foo']);
     }
 
     public function testEnv()
     {
         $_ENV['foo'] = 'bar';
-        $this->assertSame('bar', $this->request->env['foo']);
-
-        $this->request->env['baz'] = 'dib';
-        $this->assertSame('dib', $_ENV['baz']);
+        $request = $this->newRequest();
+        $this->assertSame('bar', $request->env['foo']);
     }
 
     public function testFiles()
     {
         $_FILES['foo'] = 'bar';
-        $this->assertSame('bar', $this->request->files['foo']);
-
-        $this->request->files['baz'] = 'dib';
-        $this->assertSame('dib', $_FILES['baz']);
+        $request = $this->newRequest();
+        $this->assertSame('bar', $request->files['foo']);
     }
 
     public function testGet()
     {
         $_GET['foo'] = 'bar';
-        $this->assertSame('bar', $this->request->get['foo']);
-
-        $this->request->get['baz'] = 'dib';
-        $this->assertSame('dib', $_GET['baz']);
+        $request = $this->newRequest();
+        $this->assertSame('bar', $request->get['foo']);
     }
 
     public function testPost()
     {
         $_POST['foo'] = 'bar';
-        $this->assertSame('bar', $this->request->post['foo']);
-
-        $this->request->post['baz'] = 'dib';
-        $this->assertSame('dib', $_POST['baz']);
+        $request = $this->newRequest();
+        $this->assertSame('bar', $request->post['foo']);
     }
 
     public function testRequest()
     {
         $_REQUEST['foo'] = 'bar';
-        $this->assertSame('bar', $this->request->request['foo']);
-
-        $this->request->request['baz'] = 'dib';
-        $this->assertSame('dib', $_REQUEST['baz']);
+        $request = $this->newRequest();
+        $this->assertSame('bar', $request->request['foo']);
     }
 
     public function testServer()
     {
         $_SERVER['foo'] = 'bar';
-        $this->assertSame('bar', $this->request->server['foo']);
-
-        $this->request->server['baz'] = 'dib';
-        $this->assertSame('dib', $_SERVER['baz']);
+        $request = $this->newRequest();
+        $this->assertSame('bar', $request->server['foo']);
     }
 
     /**
@@ -80,16 +64,49 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testSession()
     {
+        $request = $this->newRequest();
+
+        // session not started yet
         $this->assertFalse(isset($_SESSION));
-        $this->assertNull($this->request->session);
+        $this->assertFalse(isset($request->session));
         
+        // session started
         session_start();
         $this->assertTrue(isset($_SESSION));
 
+        // check the reference from $_SESSION to $request ...
         $_SESSION['foo'] = 'bar';
-        $this->assertSame('bar', $this->request->session['foo']);
+        $this->assertSame('bar', $request->session['foo']);
 
-        $this->request->session['baz'] = 'dib';
+        // ... and from $request back to $_SESSION
+        $request->session['baz'] = 'dib';
         $this->assertSame('dib', $_SESSION['baz']);
+
+        // unset both property and superglobals
+        unset($request->session);
+        $this->assertFalse(isset($_SESSION));
+        $this->assertFalse(isset($request->session));
+
+    }
+
+    public function testGetWrongName()
+    {
+        $request = $this->newRequest();
+        $this->setExpectedException('UnexpectedValueException');
+        $request->notSession;
+    }
+
+    public function testIssetWrongName()
+    {
+        $request = $this->newRequest();
+        $this->setExpectedException('UnexpectedValueException');
+        isset($request->notSession);
+    }
+
+    public function testUnsetWrongName()
+    {
+        $request = $this->newRequest();
+        $this->setExpectedException('UnexpectedValueException');
+        unset($request->notSession);
     }
 }
