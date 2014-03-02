@@ -7,7 +7,8 @@
  */
 namespace Mlaphp;
 
-use UnexpectedValueException;
+use DomainException;
+use InvalidArgumentException;
 
 /**
  * A data structure object to encapsulate superglobal references. Changes to
@@ -104,14 +105,20 @@ class Request
      *
      * @param string $property The property name; must be 'session'.
      * @return array A reference to $_SESSION.
+     * @throws InvalidArgumentException for any $name other than 'session'.
+     * @throws DomainException when $_SESSION is not set.
      */
     public function &__get($name)
     {
         if ($name != 'session') {
-            throw new UnexpectedValueException($name);
+            throw new InvalidArgumentException($name);
         }
 
-        if (isset($this->globals['_SESSION']) && ! isset($this->session)) {
+        if (! isset($this->globals['_SESSION'])) {
+            throw new DomainException('$_SESSION is not set');
+        }
+
+        if (! isset($this->session)) {
             $this->session = &$this->globals['_SESSION'];
         }
 
@@ -127,7 +134,7 @@ class Request
     public function __isset($name)
     {
         if ($name != 'session') {
-            throw new UnexpectedValueException;
+            throw new InvalidArgumentException;
         }
 
         return isset($this->session);
@@ -143,7 +150,7 @@ class Request
     public function __unset($name)
     {
         if ($name != 'session') {
-            throw new UnexpectedValueException;
+            throw new InvalidArgumentException;
         }
 
         $this->session = null;

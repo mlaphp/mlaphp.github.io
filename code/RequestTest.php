@@ -89,24 +89,30 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     }
 
+    public function getSessionBeforeStarted()
+    {
+        $this->setExpectedException('DomainException');
+        $request->session['foo'] = 'baz';
+    }
+
     public function testGetWrongName()
     {
         $request = $this->newRequest();
-        $this->setExpectedException('UnexpectedValueException');
+        $this->setExpectedException('InvalidArgumentException');
         $request->notSession;
     }
 
     public function testIssetWrongName()
     {
         $request = $this->newRequest();
-        $this->setExpectedException('UnexpectedValueException');
+        $this->setExpectedException('InvalidArgumentException');
         isset($request->notSession);
     }
 
     public function testUnsetWrongName()
     {
         $request = $this->newRequest();
-        $this->setExpectedException('UnexpectedValueException');
+        $this->setExpectedException('InvalidArgumentException');
         unset($request->notSession);
     }
 }
