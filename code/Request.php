@@ -74,12 +74,6 @@ class Request
     protected $session;
 
     /**
-     * A map of magic properties to their superglobal reference.
-     *
-     * @var array
-     */
-
-    /**
      * Constructor.
      * 
      * @param array $globals A reference to $GLOBALS.
