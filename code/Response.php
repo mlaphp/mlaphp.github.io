@@ -42,9 +42,37 @@ class Response
     protected $view;
 
     /**
-     * Sets the path to the view file.
+     * A base path prefix for view files.
      *
-     * @param string $view The path to the view file.
+     * @var string
+     */
+    protected $view_base;
+
+    /**
+     * Sets the base path prefix for view files.
+     *
+     * @param string $view The view file.
+     * @return null
+     */
+    public function setViewBase($view_base)
+    {
+        $this->view_base = $view_base;
+    }
+
+    /**
+     * Gets the base path prefix for view files.
+     *
+     * @return string
+     */
+    public function getViewBase()
+    {
+        return $this->view_base;
+    }
+
+    /**
+     * Sets the view file.
+     *
+     * @param string $view The view file.
      * @return null
      */
     public function setView($view)
@@ -53,13 +81,29 @@ class Response
     }
 
     /**
-     * Gets the path to the view file.
+     * Gets the view file.
      *
      * @return string
      */
     public function getView()
     {
         return $this->view;
+    }
+
+    /**
+     * Returns the full path to the view.
+     *
+     * @return string
+     */
+    public function getViewPath()
+    {
+        if (! $this->view_base) {
+            return $this->view;
+        }
+
+        return rtrim($this->view_base, DIRECTORY_SEPARATOR)
+             . DIRECTORY_SEPARATOR
+             . ltrim($this->view, DIRECTORY_SEPARATOR);
     }
 
     /**
@@ -196,7 +240,7 @@ class Response
 
         extract($this->vars);
         ob_start();
-        require $this->view;
+        require $this->getViewPath();
         return ob_get_clean();
     }
 

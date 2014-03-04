@@ -12,10 +12,19 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
     protected $view_file;
 
+    protected $view_base;
+
     public function setUp()
     {
-        $this->view_file = __DIR__ . DIRECTORY_SEPARATOR . 'response_view.php';
+        $this->view_file = 'response_view.php';
+        $this->view_base = __DIR__;
         $this->response = new FakeResponse;
+    }
+
+    public function testSetAndGetViewBase()
+    {
+        $this->response->setViewBase($this->view_base);
+        $this->assertSame($this->view_base, $this->response->getViewBase());
     }
 
     public function testSetAndGetView()
@@ -60,9 +69,18 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expect, $this->response->getHeaders());
     }
 
+    public function testGetViewPath()
+    {
+        $this->response->setViewBase($this->view_base);
+        $this->response->setView($this->view_file);
+        $expect = $this->view_base . DIRECTORY_SEPARATOR . $this->view_file;
+        $this->assertSame($expect, $this->response->getViewPath());
+    }
+
     public function testRequireView()
     {
         $this->response->setVars(array('noun' => 'World'));
+        $this->response->setViewBase($this->view_base);
         $this->response->setView($this->view_file);
         $output = $this->response->requireView();
         $this->assertSame('Hello World!', $output);
@@ -102,6 +120,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     public function testSend()
     {
         // prep
+        $this->response->setViewBase($this->view_base);
         $this->response->setView($this->view_file);
         $this->response->setVars(array('noun' => 'World'));
         $this->response->setLastCall(array($this, 'responseFunc'), 'made last call');
