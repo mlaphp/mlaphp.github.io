@@ -13,6 +13,13 @@ namespace Mlaphp;
 class Response
 {
     /**
+     * A base path prefix for view files.
+     *
+     * @var string
+     */
+    protected $base;
+
+    /**
      * The buffer for HTTP header calls.
      *
      * @var array
@@ -42,11 +49,14 @@ class Response
     protected $view;
 
     /**
-     * A base path prefix for view files.
+     * Constructor.
      *
-     * @var string
+     * @param string $base A base path prefix for view files.
      */
-    protected $view_base;
+    public function __construct($base = null)
+    {
+        $this->setBase($base);
+    }
 
     /**
      * Sets the base path prefix for view files.
@@ -54,9 +64,9 @@ class Response
      * @param string $view The view file.
      * @return null
      */
-    public function setViewBase($view_base)
+    public function setBase($base)
     {
-        $this->view_base = $view_base;
+        $this->base = $base;
     }
 
     /**
@@ -64,9 +74,9 @@ class Response
      *
      * @return string
      */
-    public function getViewBase()
+    public function getBase()
     {
-        return $this->view_base;
+        return $this->base;
     }
 
     /**
@@ -97,11 +107,11 @@ class Response
      */
     public function getViewPath()
     {
-        if (! $this->view_base) {
+        if (! $this->base) {
             return $this->view;
         }
 
-        return rtrim($this->view_base, DIRECTORY_SEPARATOR)
+        return rtrim($this->base, DIRECTORY_SEPARATOR)
              . DIRECTORY_SEPARATOR
              . ltrim($this->view, DIRECTORY_SEPARATOR);
     }

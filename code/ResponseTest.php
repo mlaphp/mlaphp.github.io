@@ -10,27 +10,27 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
     protected $func_result = 'func not called';
 
-    protected $view_file;
+    protected $base;
 
-    protected $view_base;
+    protected $view;
 
     public function setUp()
     {
-        $this->view_file = 'response_view.php';
-        $this->view_base = __DIR__;
+        $this->base = __DIR__;
+        $this->view = 'response_view.php';
         $this->response = new FakeResponse;
     }
 
-    public function testSetAndGetViewBase()
+    public function testSetAndGetBase()
     {
-        $this->response->setViewBase($this->view_base);
-        $this->assertSame($this->view_base, $this->response->getViewBase());
+        $this->response->setBase($this->base);
+        $this->assertSame($this->base, $this->response->getBase());
     }
 
     public function testSetAndGetView()
     {
-        $this->response->setView($this->view_file);
-        $this->assertSame($this->view_file, $this->response->getView());
+        $this->response->setView($this->view);
+        $this->assertSame($this->view, $this->response->getView());
     }
 
     public function testSetAndGetVars()
@@ -71,17 +71,17 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
     public function testGetViewPath()
     {
-        $this->response->setViewBase($this->view_base);
-        $this->response->setView($this->view_file);
-        $expect = $this->view_base . DIRECTORY_SEPARATOR . $this->view_file;
+        $this->response->setBase($this->base);
+        $this->response->setView($this->view);
+        $expect = $this->base . DIRECTORY_SEPARATOR . $this->view;
         $this->assertSame($expect, $this->response->getViewPath());
     }
 
     public function testRequireView()
     {
         $this->response->setVars(array('noun' => 'World'));
-        $this->response->setViewBase($this->view_base);
-        $this->response->setView($this->view_file);
+        $this->response->setBase($this->base);
+        $this->response->setView($this->view);
         $output = $this->response->requireView();
         $this->assertSame('Hello World!', $output);
     }
@@ -120,8 +120,8 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     public function testSend()
     {
         // prep
-        $this->response->setViewBase($this->view_base);
-        $this->response->setView($this->view_file);
+        $this->response->setBase($this->base);
+        $this->response->setView($this->view);
         $this->response->setVars(array('noun' => 'World'));
         $this->response->setLastCall(array($this, 'responseFunc'), 'made last call');
         $this->response->fakeHeader('Foo: Bar');
