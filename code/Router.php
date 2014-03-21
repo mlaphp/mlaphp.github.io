@@ -34,7 +34,7 @@ class Router
      *
      * @var string
      */
-    protected $not_found_route = 'Controller\PageNotFound';
+    protected $not_found_route = '/not-found.php';
 
     /**
      * The path to the pages directory.
@@ -208,6 +208,10 @@ class Router
 
         if ($this->pageExists($page)) {
             return $page;
+        }
+
+        if ($this->isFileRoute($this->not_found_route)) {
+            return $this->pages_dir . $this->not_found_route;
         }
 
         return $this->not_found_route;

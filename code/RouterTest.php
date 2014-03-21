@@ -15,7 +15,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $this->router = new Router($this->pages_dir);
         $this->router->setFront('front-controller.php');
         $this->router->setHomeRoute('/hello.php');
-        $this->router->setNotFoundRoute('Controller\Http404');
+        $this->router->setNotFoundRoute('/page-not-found.php');
     }
 
     public function testMatchWithoutFront()
@@ -40,9 +40,17 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expect, $actual);
     }
 
-    public function testMatchNotFound()
+    public function testMatchNotFoundUsingFile()
+    {
+        $expect = $this->pages_dir . '/page-not-found.php';
+        $actual = $this->router->match('/no-such-file');
+        $this->assertSame($expect, $actual);
+    }
+
+    public function testMatchNotFoundUsingClass()
     {
         $expect = "Controller\Http404";
+        $this->router->setNotFoundRoute($expect);
         $actual = $this->router->match('/no-such-file');
         $this->assertSame($expect, $actual);
     }
