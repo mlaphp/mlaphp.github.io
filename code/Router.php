@@ -16,25 +16,25 @@ use RuntimeException;
 class Router
 {
     /**
-     * The path to the front controller in the document root.
+     * The URL path prefix for the front controller.
      *
      * @var string
      */
     protected $front = '/front.php';
 
     /**
-     * The path to the "home" page script in the pages directory.
+     * The route value for the home page (URL path `/`).
      *
      * @var string
      */
-    protected $home = '/index.php';
+    protected $home_route = '/index.php';
 
     /**
-     * The path to the "page not found" page script in the pages directory.
+     * The route value for when there is no matching route.
      *
      * @var string
      */
-    protected $not_found = '/not-found.php';
+    protected $not_found_route = 'Controller\PageNotFound';
 
     /**
      * The path to the pages directory.
@@ -63,10 +63,9 @@ class Router
     }
 
     /**
-     * Sets the path to the front controller in the document root.
+     * Sets the URL path prefix for the front controller.
      *
-     * @param string $front The path to the front controller in the document
-     * root.
+     * @param string $front The URL path prefix for the front controller.
      * @return null
      */
     public function setFront($front)
@@ -75,27 +74,26 @@ class Router
     }
 
     /**
-     * Sets the path to the "home" page script in the pages directory.
+     * Sets the route value for the home page (URL path `/`).
      *
-     * @param string $home The path to the "home" page script in the pages
-     * directory.
+     * @param string $home_route The route value for the home page.
      * @return null
      */
-    public function setHome($home)
+    public function setHomeRoute($home_route)
     {
-        $this->home = '/' . ltrim($home, '/');
+        $this->home_route = $home_route;
     }
 
     /**
-     * Sets the path to the "page not found" page script in the pages directory.
+     * Sets the route value for when there is no matching route.
      *
-     * @param string $not_found The path to the "page not found" page script in
-     * the pages directory.
+     * @param string $not_found_route The route value for when there is no
+     * matching route.
      * @return null
      */
-    public function setNotFound($not_found)
+    public function setNotFoundRoute($not_found_route)
     {
-        $this->not_found = '/' . ltrim($not_found, '/');
+        $this->not_found_route = $not_found_route;
     }
 
     /**
@@ -120,22 +118,16 @@ class Router
     public function match($path)
     {
         $path = $this->fixPath($path);
-
-        if (isset($this->routes[$path])) {
-            $route = $this->routes[$path];
-        } else {
-            $route = $path;
-        }
-
+        $route = $this->getRoute($path);
         return $this->fixRoute($route);
     }
 
     /**
      * Fixes the incoming URL path to strip the front controller script
-     * name, and replace empty or root URL paths with the home page.
+     * name.
      *
      * @param string $path The incoming URL path.
-     * @return string The normalized path.
+     * @return string The fixed path.
      */
     protected function fixPath($path)
     {
@@ -145,16 +137,31 @@ class Router
             $path = substr($path, $len);
         }
 
-        if ($path == '' || $path == '/') {
-            $path = $this->home;
+        return '/' . ltrim($path, '/');
+    }
+
+    /**
+     * Returns the route value for a given URL path; uses the home route value
+     * if the URL path is `/`.
+     *
+     * @param string $path The incoming URL path.
+     * @return string The route value.
+     */
+    protected function getRoute($path)
+    {
+        if (isset($this->routes[$path])) {
+            return $this->routes[$path];
+        }
+
+        if ($path == '/') {
+            return $this->home_route;
         }
 
         return $path;
     }
 
     /**
-     * Fixes a route specification: if it is a file name, finds the real path
-     * and checks to see if it actually exists; otherwise, leaves it alone.
+     * Fixes a route specification to make sure it is found.
      *
      * @param string $route The matched route.
      * @return string The "fixed" route.
@@ -163,20 +170,11 @@ class Router
      */
     protected function fixRoute($route)
     {
-        if (! $this->isFile($route)) {
-            return $route;
+        if ($this->isFileRoute($route)) {
+            return $this->fixFileRoute($route);
         }
 
-        if (! $this->pages_dir) {
-            throw new RuntimeException('No pages directory specified.');
-        }
-
-        $page = realpath($this->pages_dir . $route);
-        if ($this->pageExists($page)) {
-            return $page;
-        } else {
-            return $this->pages_dir . $this->not_found;
-        }
+        return $route;
     }
 
     /**
@@ -185,9 +183,34 @@ class Router
      * @param string $route The matched route.
      * @return bool
      */
-    protected function isFile($route)
+    protected function isFileRoute($route)
     {
         return substr($route, 0, 1) == '/';
+    }
+
+    /**
+     * Fixes a file route specification by finding the real path to see if it
+     * exists in the pages directory and is readable.
+     *
+     * @param string $route The matched route.
+     * @return string The real path if it exists, or the not-found route if it
+     * does not.
+     * @throws RuntimeException when the route is a file but no pages directory
+     * is specified.
+     */
+    protected function fixFileRoute($route)
+    {
+        if (! $this->pages_dir) {
+            throw new RuntimeException('No pages directory specified.');
+        }
+
+        $page = realpath($this->pages_dir . $route);
+
+        if ($this->pageExists($page)) {
+            return $page;
+        }
+
+        return $this->not_found_route;
     }
 
     /**
