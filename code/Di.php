@@ -36,6 +36,17 @@ class Di
     protected $variables = array();
 
     /**
+     * Constructor.
+     *
+     * @param array $variables A reference to an existing array of variables to
+     * be used as magic properties, typically $GLOBALS.
+     */
+    public function __construct(array &$variables = array())
+    {
+        $this->variables = &$variables;
+    }
+
+    /**
      * Gets a magic property.
      *
      * @param string $key The property name.
