@@ -113,6 +113,7 @@ class Di
      */
     public function has($name)
     {
+        $name = ltrim($name, '\\');
         return isset($this->callables[$name]);
     }
 
@@ -126,6 +127,7 @@ class Di
      */
     public function get($name)
     {
+        $name = ltrim($name, '\\');
         if (! isset($this->instances[$name])) {
             $this->instances[$name] = $this->newInstance($name);
         }
