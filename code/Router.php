@@ -183,7 +183,7 @@ class Router
      * @param string $route The matched route.
      * @return bool
      */
-    public function isFileRoute($route)
+    protected function isFileRoute($route)
     {
         return substr($route, 0, 1) == '/';
     }
