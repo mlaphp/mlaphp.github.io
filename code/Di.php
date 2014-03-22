@@ -143,6 +143,7 @@ class Di
      */
     public function newInstance($name)
     {
+        $name = ltrim($name, '\\');
         if (! $this->has($name)) {
             throw new UnexpectedValueException($name);
         }
