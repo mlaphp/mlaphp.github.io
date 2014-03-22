@@ -123,7 +123,6 @@ class Di
      *
      * @param string $name The name of the shared instance to retrieve.
      * @return object The shared object instance.
-     * @throws UnexpectedValueException
      */
     public function get($name)
     {
