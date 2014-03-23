@@ -38,12 +38,12 @@ class Di
     /**
      * Constructor.
      *
-     * @param array $variables A reference to an existing array of variables to
-     * be used as magic properties, typically $GLOBALS.
+     * @param array $variables A an existing array of variables to be used as
+     * magic properties, typically $GLOBALS.
      */
-    public function __construct(array &$variables = array())
+    public function __construct(array $variables = array())
     {
-        $this->variables = &$variables;
+        $this->variables = $variables;
     }
 
     /**
