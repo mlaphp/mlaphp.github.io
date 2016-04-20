@@ -24,7 +24,15 @@
       <div class="jumbotron">
         <h1>Modernize Your Legacy PHP Application</h1>
         <p class="lead">Get your code under control<br />in a series of small, specific steps.</p>
-        <p><a class="btn btn-lg btn-success" href="https://leanpub.com/mlaphp/packages/book/purchases/new" role="button">Buy the book today!</a></p>
+        <p>
+          <form action="https://leanpub.com/purchases" method="post">
+            <input type="hidden" name="book_slug" value="mlaphp" />
+            <input type="submit" name="commit" value="Buy the book today!" class="btn btn-lg btn-success" />
+          </form>
+          <!--
+            <a class="btn btn-lg btn-success" href="https://leanpub.com/mlaphp/packages/book/purchases/new" role="button">Buy the book today!</a>
+          -->
+        </p>
         <p>Then <a href="#signup">sign up on the mailing list</a> for updates and information.</p>
       </div>
 
