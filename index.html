@@ -29,11 +29,7 @@
             <input type="hidden" name="book_slug" value="mlaphp" />
             <input type="submit" name="commit" value="Buy the book today!" class="btn btn-lg btn-success" />
           </form>
-          <!--
-            <a class="btn btn-lg btn-success" href="https://leanpub.com/mlaphp/packages/book/purchases/new" role="button">Buy the book today!</a>
-          -->
         </p>
-        <p>Then <a href="#signup">sign up on the mailing list</a> for updates and information.</p>
       </div>
 
       <div class="row marketing">
@@ -124,6 +120,14 @@
           Every purchase includes free updates, so as the book gets
           revised with updated content, that content is also yours.</p>
 
+          <p>
+            <form action="https://leanpub.com/purchases" method="post">
+              <input type="hidden" name="book_slug" value="mlaphp" />
+              <input type="submit" name="commit" value="Buy the book today!" class="btn btn-lg btn-success" />
+            </form>
+          </p>
+
+        <!--
           <h2 id="signup">Sign Up!</h2>
 
           <p>After you purchase the book, join the mailing
@@ -131,7 +135,6 @@
           applications. (Or sign up before you purchase, whichever you
           prefer!)</p>
 
-          <!-- Begin MailChimp Signup Form -->
           <div id="mc_embed_signup" class="well">
             <form
               action="http://paul-m-jones.us3.list-manage.com/subscribe/post?u=4f22dc41f82c49ce5b0e90fac&amp;id=9887aa6c34"
@@ -154,7 +157,6 @@
             		<div class="response" id="mce-success-response" style="display:none"></div>
             	</div>
               <div style="position: absolute; left: -5000px;">
-                <!-- bot killer -->
                 <input type="text" name="b_4f22dc41f82c49ce5b0e90fac_9887aa6c34" value="">
               </div>
               <div class="clear">
@@ -163,11 +165,10 @@
               <p class="small">Powered by <a href="http://eepurl.com/KuPsz" title="MailChimp - email marketing made easy and fun">MailChimp</a></p>
             </form>
           </div>
-          <!--End mc_embed_signup-->
 
           <p>I promise, you'll never receive any spam or other unwanted
           messages on this list. Add your email today!</p>
-
+--> 
         </div><!-- /col-lg-12 -->
       </div><!-- /row marketing -->
 
